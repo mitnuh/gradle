@@ -18,7 +18,7 @@ package org.gradle.caching.internal
 
 import spock.lang.Specification
 
-class DefaultBuildCacheKeyBuilderTest extends Specification {
+class DefaultBuildCacheServiceKeyBuilderTest extends Specification {
 
     def 'hash collision for bytes'() {
         def left = [[1, 2, 3], [4, 5]]
