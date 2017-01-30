@@ -79,6 +79,8 @@ public interface GradleExecuter extends Stoppable {
 
     GradleExecuter usingInitScript(File initScript);
 
+    GradleExecuter usingInitScript(String fileName, Object contents);
+
     /**
      * Uses the given project directory
      */

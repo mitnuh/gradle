@@ -100,7 +100,7 @@ public class LocalDirectoryBuildCacheService implements BuildCacheService {
     }
 
     @Override
-    public void store(final BuildCacheKey key, final BuildCacheEntryWriter result) throws BuildCacheException {
+    public boolean store(final BuildCacheKey key, final BuildCacheEntryWriter result) throws BuildCacheException {
         persistentCache.useCache(new Runnable() {
             @Override
             public void run() {
@@ -118,6 +118,7 @@ public class LocalDirectoryBuildCacheService implements BuildCacheService {
                 }
             }
         });
+        return true;
     }
 
     private File getFile(String key) {

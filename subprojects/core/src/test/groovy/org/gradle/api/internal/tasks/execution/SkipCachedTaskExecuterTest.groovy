@@ -29,7 +29,7 @@ import org.gradle.api.internal.tasks.TaskStateInternal
 import org.gradle.caching.BuildCacheService
 import org.gradle.caching.BuildCacheEntryReader
 import org.gradle.caching.BuildCacheKey
-import org.gradle.caching.internal.BuildCacheConfigurationInternal
+import org.gradle.caching.configuration.internal.BuildCacheConfigurationInternal
 import org.gradle.caching.internal.tasks.TaskOutputPacker
 import org.gradle.caching.internal.tasks.origin.TaskOutputOriginFactory
 import org.gradle.caching.internal.tasks.origin.TaskOutputOriginReader

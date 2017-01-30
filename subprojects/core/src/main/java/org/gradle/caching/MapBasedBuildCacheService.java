@@ -58,7 +58,7 @@ public class MapBasedBuildCacheService implements BuildCacheService {
     }
 
     @Override
-    public void store(BuildCacheKey key, BuildCacheEntryWriter output) throws BuildCacheException {
+    public boolean store(BuildCacheKey key, BuildCacheEntryWriter output) throws BuildCacheException {
         StreamByteBuffer buffer = new StreamByteBuffer();
         try {
             output.writeTo(buffer.getOutputStream());
@@ -66,6 +66,7 @@ public class MapBasedBuildCacheService implements BuildCacheService {
             throw new BuildCacheException("storing " + key, e);
         }
         delegate.put(key.getHashCode(), buffer.readAsByteArray());
+        return true;
     }
 
     @Override

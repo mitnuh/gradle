@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,51 +16,44 @@
 
 package org.gradle.caching.internal;
 
-import org.gradle.caching.BuildCacheService;
 import org.gradle.caching.BuildCacheEntryReader;
 import org.gradle.caching.BuildCacheEntryWriter;
 import org.gradle.caching.BuildCacheException;
 import org.gradle.caching.BuildCacheKey;
+import org.gradle.caching.BuildCacheService;
 
 import java.io.IOException;
 
-/**
- * Ignores {@link BuildCacheException} exceptions.
- */
-public class LenientBuildCacheServiceDecorator implements BuildCacheService {
-    private final BuildCacheService delegate;
+public class CompositeBuildCacheService implements BuildCacheService {
+    private final BuildCacheService local;
+    private final BuildCacheService remote;
 
-    public LenientBuildCacheServiceDecorator(BuildCacheService delegate) {
-        this.delegate = delegate;
+    public CompositeBuildCacheService(BuildCacheService local, BuildCacheService remote) {
+        this.local = local;
+        this.remote = remote;
     }
 
     @Override
     public boolean load(BuildCacheKey key, BuildCacheEntryReader reader) throws BuildCacheException {
-        try {
-            return delegate.load(key, reader);
-        } catch (BuildCacheException e) {
-            // Assume cache didn't have it.
-            return false;
-        }
+        return local.load(key, reader) || remote.load(key, reader);
     }
 
     @Override
     public boolean store(BuildCacheKey key, BuildCacheEntryWriter writer) throws BuildCacheException {
-        try {
-            return delegate.store(key, writer);
-        } catch (BuildCacheException e) {
-            // Assume its OK to not push anything.
-            return true;
-        }
+        return remote.store(key, writer) || local.store(key, writer);
     }
 
     @Override
     public String getDescription() {
-        return delegate.getDescription();
+        return "Build caches enabled: local: " + local.getDescription() + ", remote: " + remote.getDescription();
     }
 
     @Override
     public void close() throws IOException {
-        delegate.close();
+        try {
+            remote.close();
+        } finally {
+            local.close();
+        }
     }
 }

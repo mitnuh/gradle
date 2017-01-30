@@ -45,8 +45,8 @@ public class BuildOperationFiringBuildCacheServiceDecorator implements BuildCach
     }
 
     @Override
-    public void store(final BuildCacheKey key, final BuildCacheEntryWriter writer) throws BuildCacheException {
-        delegate.store(key, new BuildOperationFiringBuildCacheEntryWriter(writer, key));
+    public boolean store(final BuildCacheKey key, final BuildCacheEntryWriter writer) throws BuildCacheException {
+        return delegate.store(key, new BuildOperationFiringBuildCacheEntryWriter(writer, key));
     }
 
     @Override

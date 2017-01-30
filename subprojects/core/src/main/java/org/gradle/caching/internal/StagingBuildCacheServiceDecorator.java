@@ -63,12 +63,14 @@ public class StagingBuildCacheServiceDecorator implements BuildCacheService {
     }
 
     @Override
-    public void store(BuildCacheKey key, BuildCacheEntryWriter writer) throws BuildCacheException {
+    public boolean store(BuildCacheKey key, BuildCacheEntryWriter writer) throws BuildCacheException {
+        boolean result;
         if (stageCacheEntries) {
-            delegate.store(key, new StagingBuildCacheEntryWriter(writer, temporaryFileProvider));
+            result = delegate.store(key, new StagingBuildCacheEntryWriter(writer, temporaryFileProvider));
         } else {
-            delegate.store(key, writer);
+            result = delegate.store(key, writer);
         }
+        return result;
     }
 
     @Override

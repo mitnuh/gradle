@@ -111,7 +111,7 @@ public class HttpBuildCacheService implements BuildCacheService {
     }
 
     @Override
-    public void store(BuildCacheKey key, final BuildCacheEntryWriter output) throws BuildCacheException {
+    public boolean store(BuildCacheKey key, final BuildCacheEntryWriter output) throws BuildCacheException {
         final URI uri = root.resolve(key.getHashCode());
         HttpPut httpPut = new HttpPut(uri);
         httpPut.setEntity(new AbstractHttpEntity() {
@@ -161,6 +161,7 @@ public class HttpBuildCacheService implements BuildCacheService {
         } finally {
             HttpClientUtils.closeQuietly(response);
         }
+        return true;
     }
 
     private boolean isHttpSuccess(int statusCode) {

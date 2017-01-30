@@ -139,8 +139,15 @@ class CachedTaskExecutionIntegrationTest extends AbstractIntegrationSpec impleme
     }
 
     def "task results don't get stored when pushing is disabled"() {
+        def noPushInitScript = file("init-cache-no-push.gradle") << """
+            buildCache {
+                local.push = false
+            }
+        """
+        executer.usingInitScript(noPushInitScript)
+
         when:
-        withBuildCache().succeeds "jar", "-Dorg.gradle.cache.tasks.push=false"
+        withBuildCache().succeeds "jar"
         then:
         skippedTasks.empty
 

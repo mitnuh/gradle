@@ -23,6 +23,12 @@ import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.SettingsInternal;
 import org.gradle.api.internal.changedetection.state.TaskHistoryStore;
 import org.gradle.api.logging.StandardOutputListener;
+import org.gradle.caching.BuildCacheService;
+import org.gradle.caching.internal.BuildOperationFiringBuildCacheServiceDecorator;
+import org.gradle.caching.internal.LenientBuildCacheServiceDecorator;
+import org.gradle.caching.internal.LoggingBuildCacheServiceDecorator;
+import org.gradle.caching.internal.MutableBuildCacheService;
+import org.gradle.caching.internal.ShortCircuitingErrorHandlerBuildCacheServiceDecorator;
 import org.gradle.configuration.BuildConfigurer;
 import org.gradle.execution.BuildConfigurationActionExecuter;
 import org.gradle.execution.BuildExecuter;
@@ -139,6 +145,9 @@ public class DefaultGradleLauncher implements GradleLauncher {
             // Evaluate init scripts
             initScriptHandler.executeScripts(gradle);
 
+            // Configure and enable build caches
+            configureBuildCache(gradle);
+
             // Build `buildSrc`, load settings.gradle, and construct composite (if appropriate)
             settings = settingsLoader.findAndLoadSettings(gradle);
 
@@ -236,6 +245,17 @@ public class DefaultGradleLauncher implements GradleLauncher {
         @Override
         public void execute(BuildOperationContext buildOperationContext) {
             buildExecuter.execute(gradle);
+        }
+    }
+
+    private void configureBuildCache(GradleInternal gradle) {
+        if (gradle.getStartParameter().isTaskOutputCacheEnabled()) {
+            BuildCacheService service = new LenientBuildCacheServiceDecorator(
+                new ShortCircuitingErrorHandlerBuildCacheServiceDecorator(3,
+                    new LoggingBuildCacheServiceDecorator(
+                        new BuildOperationFiringBuildCacheServiceDecorator(buildOperationExecutor,
+                            gradle.getBuildCache().build()))));
+            gradle.getServices().get(MutableBuildCacheService.class).setDelegate(service);
         }
     }
 

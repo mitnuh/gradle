@@ -27,6 +27,7 @@ import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.initialization.IncludedBuild;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.plugins.PluginAware;
+import org.gradle.caching.configuration.BuildCacheConfiguration;
 import org.gradle.internal.HasInternalProtocol;
 
 import java.io.File;
@@ -352,4 +353,11 @@ public interface Gradle extends PluginAware {
      */
     @Incubating
     IncludedBuild includedBuild(String name);
+
+
+    /**
+     * Configures build cache.
+     */
+    @Incubating
+    void buildCache(Action<? super BuildCacheConfiguration> action);
 }

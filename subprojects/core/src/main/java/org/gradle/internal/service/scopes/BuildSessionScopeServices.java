@@ -21,6 +21,7 @@ import org.gradle.api.Action;
 import org.gradle.api.internal.ClassPathRegistry;
 import org.gradle.api.internal.DefaultClassPathProvider;
 import org.gradle.api.internal.DefaultClassPathRegistry;
+import org.gradle.api.internal.DependencyInjectingServiceLoader;
 import org.gradle.api.internal.attributes.DefaultImmutableAttributesFactory;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.cache.DefaultGeneratedGradleJarCache;
@@ -29,8 +30,10 @@ import org.gradle.api.internal.classpath.ModuleRegistry;
 import org.gradle.api.internal.file.TemporaryFileProvider;
 import org.gradle.cache.CacheRepository;
 import org.gradle.cache.internal.CacheRepositoryServices;
-import org.gradle.caching.internal.BuildCacheConfigurationInternal;
-import org.gradle.caching.internal.DefaultBuildCacheConfiguration;
+import org.gradle.caching.configuration.internal.BuildCacheConfigurationInternal;
+import org.gradle.caching.configuration.internal.BuildCacheServiceFactoryRegistry;
+import org.gradle.caching.configuration.internal.DefaultBuildCacheConfiguration;
+import org.gradle.caching.internal.MutableBuildCacheService;
 import org.gradle.deployment.internal.DefaultDeploymentRegistry;
 import org.gradle.deployment.internal.DeploymentRegistry;
 import org.gradle.internal.classpath.ClassPath;
@@ -43,7 +46,6 @@ import org.gradle.internal.operations.BuildOperationWorkerRegistry;
 import org.gradle.internal.operations.DefaultBuildOperationProcessor;
 import org.gradle.internal.operations.DefaultBuildOperationQueueFactory;
 import org.gradle.internal.operations.DefaultBuildOperationWorkerRegistry;
-import org.gradle.internal.progress.BuildOperationExecutor;
 import org.gradle.internal.remote.MessagingServer;
 import org.gradle.internal.service.DefaultServiceRegistry;
 import org.gradle.internal.service.ServiceRegistration;
@@ -117,8 +119,16 @@ public class BuildSessionScopeServices extends DefaultServiceRegistry {
         return new WorkerProcessClassPathProvider(cacheRepository);
     }
 
-    BuildCacheConfigurationInternal createBuildCacheConfiguration(CacheRepository cacheRepository, StartParameter startParameter, BuildOperationExecutor buildOperationExecutor) {
-        return new DefaultBuildCacheConfiguration(cacheRepository, startParameter, buildOperationExecutor);
+    BuildCacheServiceFactoryRegistry createBuildCacheServiceFactoryRegistry(ServiceRegistry serviceRegistry) {
+        return new BuildCacheServiceFactoryRegistry(new DependencyInjectingServiceLoader(serviceRegistry));
+    }
+
+    BuildCacheConfigurationInternal createBuildCacheConfiguration(BuildCacheServiceFactoryRegistry buildCacheFactoryRegistry) {
+        return new DefaultBuildCacheConfiguration(buildCacheFactoryRegistry);
+    }
+
+    MutableBuildCacheService createMutableBuildCacheService() {
+        return new MutableBuildCacheService();
     }
 
     GeneratedGradleJarCache createGeneratedGradleJarCache(CacheRepository cacheRepository) {

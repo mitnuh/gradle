@@ -354,6 +354,11 @@ public abstract class AbstractGradleExecuter implements GradleExecuter {
         return this;
     }
 
+    public GradleExecuter usingInitScript(String fileName, Object contents) {
+        File initScript = testDirectoryProvider.getTestDirectory().createFile(fileName).write(contents);
+        return usingInitScript(initScript);
+    }
+
     public TestFile getGradleUserHomeDir() {
         return gradleUserHomeDir;
     }
@@ -895,7 +900,8 @@ public abstract class AbstractGradleExecuter implements GradleExecuter {
 
     @Override
     public GradleExecuter withLocalBuildCache(File cacheDir) {
-        return withBuildCacheEnabled().withArgument("-Dorg.gradle.cache.tasks.directory=" + cacheDir.getAbsolutePath());
+        String initScript = "buildCache.local.directory = '" + cacheDir.getAbsolutePath().replaceAll("\\\\", "\\\\") + "'";
+        return withBuildCacheEnabled().usingInitScript("init-local-cache.gradle", initScript);
     }
 
     protected Action<ExecutionResult> getResultAssertion() {

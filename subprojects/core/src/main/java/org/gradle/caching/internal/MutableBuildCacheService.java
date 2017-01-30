@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,51 +16,54 @@
 
 package org.gradle.caching.internal;
 
-import org.gradle.caching.BuildCacheService;
+import com.google.common.base.Preconditions;
 import org.gradle.caching.BuildCacheEntryReader;
 import org.gradle.caching.BuildCacheEntryWriter;
 import org.gradle.caching.BuildCacheException;
 import org.gradle.caching.BuildCacheKey;
+import org.gradle.caching.BuildCacheService;
 
 import java.io.IOException;
 
-/**
- * Ignores {@link BuildCacheException} exceptions.
- */
-public class LenientBuildCacheServiceDecorator implements BuildCacheService {
-    private final BuildCacheService delegate;
+public class MutableBuildCacheService implements BuildCacheService {
+    private BuildCacheService delegate;
 
-    public LenientBuildCacheServiceDecorator(BuildCacheService delegate) {
+    public void setDelegate(BuildCacheService delegate) {
+        Preconditions.checkNotNull(delegate, "delegate");
+        if (this.delegate != null) {
+            throw new IllegalStateException("Build cache is already initialized");
+        }
         this.delegate = delegate;
     }
 
     @Override
     public boolean load(BuildCacheKey key, BuildCacheEntryReader reader) throws BuildCacheException {
-        try {
-            return delegate.load(key, reader);
-        } catch (BuildCacheException e) {
-            // Assume cache didn't have it.
-            return false;
+        if (delegate == null) {
+            throw new IllegalStateException("Build cache has not yet been initialized");
         }
+        return delegate.load(key, reader);
     }
 
     @Override
     public boolean store(BuildCacheKey key, BuildCacheEntryWriter writer) throws BuildCacheException {
-        try {
-            return delegate.store(key, writer);
-        } catch (BuildCacheException e) {
-            // Assume its OK to not push anything.
-            return true;
+        if (delegate == null) {
+            throw new IllegalStateException("Build cache has not yet been initialized");
         }
+        return delegate.store(key, writer);
     }
 
     @Override
     public String getDescription() {
+        if (delegate == null) {
+            return "Unspecified build cache";
+        }
         return delegate.getDescription();
     }
 
     @Override
     public void close() throws IOException {
-        delegate.close();
+        if (delegate != null) {
+            delegate.close();
+        }
     }
 }

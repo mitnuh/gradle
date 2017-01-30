@@ -61,14 +61,16 @@ public class ShortCircuitingErrorHandlerBuildCacheServiceDecorator implements Bu
     }
 
     @Override
-    public void store(BuildCacheKey key, BuildCacheEntryWriter writer) throws BuildCacheException {
+    public boolean store(BuildCacheKey key, BuildCacheEntryWriter writer) throws BuildCacheException {
         if (enabled.get()) {
             try {
-                delegate.store(key, writer);
+                return delegate.store(key, writer);
             } catch (BuildCacheException e) {
                 recordFailure();
                 throw e;
             }
+        } else {
+            return false;
         }
     }
 

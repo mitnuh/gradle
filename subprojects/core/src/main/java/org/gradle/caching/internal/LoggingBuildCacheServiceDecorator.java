@@ -49,10 +49,10 @@ public class LoggingBuildCacheServiceDecorator implements BuildCacheService {
     }
 
     @Override
-    public void store(BuildCacheKey key, BuildCacheEntryWriter writer) throws BuildCacheException {
+    public boolean store(BuildCacheKey key, BuildCacheEntryWriter writer) throws BuildCacheException {
         try {
             LOGGER.debug("storing cache key {}", key);
-            delegate.store(key, writer);
+            return delegate.store(key, writer);
         } catch (BuildCacheException e) {
             LOGGER.warn("Could not store cache entry for cache key {}", key, e);
             throw e;
