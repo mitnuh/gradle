@@ -31,9 +31,9 @@ class TypeOfTest extends Specification {
 
     def "simple generic name"() {
         expect:
-        new TypeOf<String>() {}.getSimpleName() == 'String'
-        new TypeOf<List<String>>() {}.getSimpleName() == 'List<String>'
-        new TypeOf() {}.getSimpleName() == 'Object'
+        new TypeOf<String>() {}.simpleName == 'String'
+        new TypeOf<List<String>>() {}.simpleName == 'List<String>'
+        new TypeOf() {}.simpleName == 'Object'
     }
 
     def "equality"() {
