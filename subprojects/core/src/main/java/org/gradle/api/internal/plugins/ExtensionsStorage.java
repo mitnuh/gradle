@@ -32,14 +32,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
 import static org.gradle.internal.Cast.uncheckedCast;
 
 public class ExtensionsStorage {
+
     private final Map<String, ExtensionHolder> extensions = new LinkedHashMap<String, ExtensionHolder>();
 
     public <T> void add(TypeOf<T> publicType, String name, T extension) {
         if (hasExtension(name)) {
-            throw new IllegalArgumentException(String.format("Cannot add extension with name '%s', as there is an extension already registered with that name.", name));
+            throw new IllegalArgumentException(
+                format("Cannot add extension with name '%s', as there is an extension already registered with that name.", name));
         }
         extensions.put(name, wrap(name, publicType, extension));
     }
@@ -66,7 +69,8 @@ public class ExtensionsStorage {
 
     void checkExtensionIsNotReassigned(String name) {
         if (hasExtension(name)) {
-            throw new IllegalArgumentException(String.format("There's an extension registered with name '%s'. You should not reassign it via a property setter.", name));
+            throw new IllegalArgumentException(
+                format("There's an extension registered with name '%s'. You should not reassign it via a property setter.", name));
         }
     }
 
@@ -209,7 +213,7 @@ public class ExtensionsStorage {
 
         private void configureLater(Action<? super T> action) {
             if (configured) {
-                throw new InvalidUserDataException(String.format("Cannot configure the '%s' extension after it has been accessed.", name));
+                throw new InvalidUserDataException(format("Cannot configure the '%s' extension after it has been accessed.", name));
             }
             actions.add(action);
         }
