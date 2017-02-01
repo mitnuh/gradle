@@ -26,7 +26,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * A {@link Type} with generics.
+ * Provides a way to preserve high-fidelity {@link Type} information on generic types.
+ *
+ * Capture a generic type with an anonymous subclass. For example: <pre>   {@code
+ *   new TypeOf<NamedDomainObjectContainer<ArtifactRepository>>() {}}</pre>
  *
  * @param <T> Parameterized type
  * @since 4.0
